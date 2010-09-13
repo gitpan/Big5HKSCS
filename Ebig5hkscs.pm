@@ -23,7 +23,7 @@ BEGIN {
 
 BEGIN { eval q{ use vars qw($VERSION $_warning) } }
 
-$VERSION = sprintf '%d.%02d', q$Revision: 0.63 $ =~ m/(\d+)/xmsg;
+$VERSION = sprintf '%d.%02d', q$Revision: 0.64 $ =~ m/(\d+)/xmsg;
 
 # poor Symbol.pm - substitute of real Symbol.pm
 BEGIN {
@@ -262,8 +262,12 @@ sub Ebig5hkscs::tr($$$$;$);
 sub Ebig5hkscs::chop(@);
 sub Ebig5hkscs::index($$;$);
 sub Ebig5hkscs::rindex($$;$);
+sub Ebig5hkscs::lcfirst(@);
+sub Ebig5hkscs::lcfirst_();
 sub Ebig5hkscs::lc(@);
 sub Ebig5hkscs::lc_();
+sub Ebig5hkscs::ucfirst(@);
+sub Ebig5hkscs::ucfirst_();
 sub Ebig5hkscs::uc(@);
 sub Ebig5hkscs::uc_();
 sub Ebig5hkscs::capture($);
@@ -714,6 +718,27 @@ sub Ebig5hkscs::rindex($$;$) {
         );
     }
 
+    # lower case first with parameter
+    sub Ebig5hkscs::lcfirst(@) {
+        if (@_) {
+            my $s = shift @_;
+            if (@_ and wantarray) {
+                return Ebig5hkscs::lc(CORE::substr($s,0,1)) . CORE::substr($s,1), @_;
+            }
+            else {
+                return Ebig5hkscs::lc(CORE::substr($s,0,1)) . CORE::substr($s,1);
+            }
+        }
+        else {
+            return Ebig5hkscs::lc(CORE::substr($_,0,1)) . CORE::substr($_,1);
+        }
+    }
+
+    # lower case first without parameter
+    sub Ebig5hkscs::lcfirst_() {
+        return Ebig5hkscs::lc(CORE::substr($_,0,1)) . CORE::substr($_,1);
+    }
+
     # lower case with parameter
     sub Ebig5hkscs::lc(@) {
         if (@_) {
@@ -780,6 +805,27 @@ sub Ebig5hkscs::rindex($$;$) {
             "\xFD" => "\xDD", # LATIN LETTER Y WITH ACUTE
             "\xFE" => "\xDE", # LATIN LETTER THORN (Icelandic)
         );
+    }
+
+    # upper case first with parameter
+    sub Ebig5hkscs::ucfirst(@) {
+        if (@_) {
+            my $s = shift @_;
+            if (@_ and wantarray) {
+                return Ebig5hkscs::uc(CORE::substr($s,0,1)) . CORE::substr($s,1), @_;
+            }
+            else {
+                return Ebig5hkscs::uc(CORE::substr($s,0,1)) . CORE::substr($s,1);
+            }
+        }
+        else {
+            return Ebig5hkscs::uc(CORE::substr($_,0,1)) . CORE::substr($_,1);
+        }
+    }
+
+    # upper case first without parameter
+    sub Ebig5hkscs::ucfirst_() {
+        return Ebig5hkscs::uc(CORE::substr($_,0,1)) . CORE::substr($_,1);
     }
 
     # upper case with parameter
@@ -4244,8 +4290,12 @@ Ebig5hkscs - Run-time routines for Big5HKSCS.pm
     Ebig5hkscs::rindex(...);
     Ebig5hkscs::lc(...);
     Ebig5hkscs::lc_;
+    Ebig5hkscs::lcfirst(...);
+    Ebig5hkscs::lcfirst_;
     Ebig5hkscs::uc(...);
     Ebig5hkscs::uc_;
+    Ebig5hkscs::ucfirst(...);
+    Ebig5hkscs::ucfirst_;
     Ebig5hkscs::capture(...);
     Ebig5hkscs::ignorecase(...);
     Ebig5hkscs::chr(...);
@@ -4390,6 +4440,15 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   Returns a lowercase version of Big5-HKSCS string (or $_, if omitted). This is the
   internal function implementing the \L escape in double-quoted strings.
 
+=item Lower case first character of string
+
+  $lcfirst = Ebig5hkscs::lcfirst($string);
+  $lcfirst = Ebig5hkscs::lcfirst_;
+
+  Returns a version of Big5-HKSCS string (or $_, if omitted) with the first character
+  lowercased. This is the internal function implementing the \l escape in double-
+  quoted strings.
+
 =item Upper case string
 
   $uc = Ebig5hkscs::uc($string);
@@ -4398,6 +4457,15 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   Returns an uppercased version of Big5-HKSCS string (or $_, if string is omitted).
   This is the internal function implementing the \U escape in double-quoted
   strings.
+
+=item Upper case first character of string
+
+  $ucfirst = Ebig5hkscs::ucfirst($string);
+  $ucfirst = Ebig5hkscs::ucfirst_;
+
+  Returns a version of Big5-HKSCS string (or $_, if omitted) with the first character
+  uppercased. This is the internal function implementing the \u escape in double-
+  quoted strings.
 
 =item Make capture number
 

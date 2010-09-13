@@ -1,6 +1,6 @@
 NAME
 
-       Big5HKSCS - "Yet Another JPerl" Source code filter for Big5-HKSCS script
+       Big5HKSCS - Source code filter for Big5-HKSCS script
 
 SYNOPSIS
 
@@ -18,7 +18,7 @@ SYNOPSIS
 
 DESCRIPTION
 
-      This software is "Yet Another JPerl" written by Perl.
+      This software is "JPerl on the Modern Perl" written by Perl.
       We can write the script in Big5-HKSCS again.
 
       This software treats Big5-HKSCS directly. Therefore, there is not UTF8 flag.
