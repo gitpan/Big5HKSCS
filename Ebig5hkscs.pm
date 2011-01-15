@@ -5,11 +5,12 @@ package Ebig5hkscs;
 #
 #                  http://search.cpan.org/dist/Big5HKSCS/
 #
-# Copyright (c) 2008, 2009, 2010 INABA Hitoshi <ina@cpan.org>
+# Copyright (c) 2008, 2009, 2010, 2011 INABA Hitoshi <ina@cpan.org>
 #
 ######################################################################
 
 use 5.00503;
+use strict qw(subs vars);
 
 # 12.3. Delaying use Until Runtime
 # in Chapter 12. Packages, Libraries, and Modules
@@ -17,17 +18,30 @@ use 5.00503;
 # (and so on)
 
 BEGIN { eval q{ use vars qw($VERSION) } }
-$VERSION = sprintf '%d.%02d', q$Revision: 0.69 $ =~ m/(\d+)/xmsg;
-
-# use strict qw(subs vars);
-BEGIN {
-    eval { require strict; 'strict'->import(qw(subs vars)); };
-}
+$VERSION = sprintf '%d.%02d', q$Revision: 0.70 $ =~ m/(\d+)/xmsg;
 
 BEGIN {
     my $PERL5LIB = __FILE__;
+
+    # DOS-like system
+    if ($^O =~ /\A (?: MSWin32 | NetWare | symbian | dos ) \z/oxms) {
         $PERL5LIB =~ s{[^/]*$}{Big5HKSCS};
-    unshift @INC, $PERL5LIB;
+    }
+
+    # UNIX-like system
+    else {
+        $PERL5LIB =~ s{[^/]*$}{Big5HKSCS};
+    }
+
+    my @inc = ();
+    my %inc = ();
+    for my $path ($PERL5LIB, @INC) {
+        if (not exists $inc{$path}) {
+            push @inc, $path;
+            $inc{$path} = 1;
+        }
+    }
+    @INC = @inc;
 }
 
 BEGIN {
@@ -105,6 +119,7 @@ BEGIN {
     }
 
     sub qualify_to_ref ($;$) {
+        no strict qw(refs);
         return \*{ qualify $_[0], @_ > 1 ? $_[1] : caller };
     }
 }
@@ -129,10 +144,6 @@ sub cluck(@);
 sub confess(@);
 
 my $__FILE__ = __FILE__;
-
-BEGIN { eval q{ use vars qw($_warning) } }
-$_warning = $^W; # push warning, warning on
-local $^W = 1;
 
 BEGIN {
     if ($^X =~ m/ jperl /oxmsi) {
@@ -360,7 +371,6 @@ sub Ebig5hkscs::p(;*@);
 sub Ebig5hkscs::S(;*@);
 sub Ebig5hkscs::b(;*@);
 sub Ebig5hkscs::c(;*@);
-sub Ebig5hkscs::t(;*@);
 sub Ebig5hkscs::u(;*@);
 sub Ebig5hkscs::g(;*@);
 sub Ebig5hkscs::k(;*@);
@@ -388,7 +398,6 @@ sub Ebig5hkscs::p_();
 sub Ebig5hkscs::S_();
 sub Ebig5hkscs::b_();
 sub Ebig5hkscs::c_();
-sub Ebig5hkscs::t_();
 sub Ebig5hkscs::u_();
 sub Ebig5hkscs::g_();
 sub Ebig5hkscs::k_();
@@ -453,7 +462,14 @@ sub Ebig5hkscs::split(;$$$) {
     my $limit   = $_[2];
 
     # if $string is omitted, the function splits the $_ string
-    $string = $_ if not defined $string;
+    if (not defined $string) {
+        if (defined $_) {
+            $string = $_;
+        }
+        else {
+            $string = '';
+        }
+    }
 
     my @split = ();
 
@@ -467,7 +483,7 @@ sub Ebig5hkscs::split(;$$$) {
 
         # count of substrings in scalar context
         else {
-            cluck "$0: Use of implicit split to \@_ is deprecated" if $^W;
+            carp "$0: Use of implicit split to \@_ is deprecated" if $^W;
             @_ = @split;
             return scalar @_;
         }
@@ -577,7 +593,7 @@ sub Ebig5hkscs::split(;$$$) {
 
     # count of substrings in scalar context
     else {
-        cluck "$0: Use of implicit split to \@_ is deprecated" if $^W;
+        carp "$0: Use of implicit split to \@_ is deprecated" if $^W;
         @_ = @split;
         return scalar @_;
     }
@@ -2440,39 +2456,6 @@ sub Ebig5hkscs::c(;*@) {
 }
 
 #
-# Big5-HKSCS file test -t expr
-#
-sub Ebig5hkscs::t(;*@) {
-
-    local $_ = shift if @_;
-    croak 'Too many arguments for -t (Ebig5hkscs::t)' if @_ and not wantarray;
-
-    if ($_ eq '_') {
-        return wantarray ? (-t _,@_) : -t _;
-    }
-    elsif (fileno(my $fh = qualify_to_ref $_)) {
-        return wantarray ? (-t $fh,@_) : -t $fh;
-    }
-    elsif (-e $_) {
-        return wantarray ? (-t _,@_) : -t _;
-    }
-    elsif (_MSWin32_5Cended_path($_)) {
-        if (-d "$_/.") {
-            return wantarray ? ('',@_) : '';
-        }
-        else {
-            my $fh = gensym();
-            if (CORE::open $fh, $_) {
-                close $fh;
-                my $t = -t $fh;
-                return wantarray ? ($t,@_) : $t;
-            }
-        }
-    }
-    return wantarray ? (undef,@_) : undef;
-}
-
-#
 # Big5-HKSCS file test -u expr
 #
 sub Ebig5hkscs::u(;*@) {
@@ -2547,28 +2530,15 @@ sub Ebig5hkscs::k(;*@) {
     croak 'Too many arguments for -k (Ebig5hkscs::k)' if @_ and not wantarray;
 
     if ($_ eq '_') {
-        return wantarray ? (-k _,@_) : -k _;
+        return wantarray ? ('',@_) : '';
     }
     elsif (fileno(my $fh = qualify_to_ref $_)) {
-        return wantarray ? (-k $fh,@_) : -k $fh;
+        return wantarray ? ('',@_) : '';
     }
-    elsif (-e $_) {
-        return wantarray ? (-k _,@_) : -k _;
+    elsif ($] =~ m/^5\.008/oxms) {
+        return wantarray ? ('',@_) : '';
     }
-    elsif (_MSWin32_5Cended_path($_)) {
-        if (-d "$_/.") {
-            return wantarray ? (-k _,@_) : -k _;
-        }
-        else {
-            my $fh = gensym();
-            if (CORE::open $fh, $_) {
-                my $k = -k $fh;
-                close $fh;
-                return wantarray ? ($k,@_) : $k;
-            }
-        }
-    }
-    return wantarray ? (undef,@_) : undef;
+    return wantarray ? ($_,@_) : $_;
 }
 
 #
@@ -2640,7 +2610,7 @@ sub Ebig5hkscs::T(;*@) {
         close $fh;
     }
 
-    my $dummy_for_underline_cache = -T $fh;
+    my $dummy_for_underline_cache = -T $_;
     return wantarray ? ($T,@_) : $T;
 }
 
@@ -2703,7 +2673,7 @@ sub Ebig5hkscs::B(;*@) {
         close $fh;
     }
 
-    my $dummy_for_underline_cache = -B $fh;
+    my $dummy_for_underline_cache = -B $_;
     return wantarray ? ($B,@_) : $B;
 }
 
@@ -3254,14 +3224,6 @@ sub Ebig5hkscs::c_() {
 }
 
 #
-# Big5-HKSCS file test -t $_
-#
-sub Ebig5hkscs::t_() {
-
-    return -t STDIN ? 1 : '';
-}
-
-#
 # Big5-HKSCS file test -u $_
 #
 sub Ebig5hkscs::u_() {
@@ -3314,23 +3276,10 @@ sub Ebig5hkscs::g_() {
 #
 sub Ebig5hkscs::k_() {
 
-    if (-e $_) {
-        return -k _ ? 1 : '';
+    if ($] =~ m/^5\.008/oxms) {
+        return wantarray ? ('',@_) : '';
     }
-    elsif (_MSWin32_5Cended_path($_)) {
-        if (-d "$_/.") {
-            return -k _ ? 1 : '';
-        }
-        else {
-            my $fh = gensym();
-            if (CORE::open $fh, $_) {
-                my $k = -k $fh;
-                close $fh;
-                return $k ? 1 : '';
-            }
-        }
-    }
-    return;
+    return wantarray ? ($_,@_) : $_;
 }
 
 #
@@ -3363,7 +3312,7 @@ sub Ebig5hkscs::T_() {
     }
     close $fh;
 
-    my $dummy_for_underline_cache = -T $fh;
+    my $dummy_for_underline_cache = -T $_;
     return $T;
 }
 
@@ -3397,7 +3346,7 @@ sub Ebig5hkscs::B_() {
     }
     close $fh;
 
-    my $dummy_for_underline_cache = -B $fh;
+    my $dummy_for_underline_cache = -B $_;
     return $B;
 }
 
@@ -3513,13 +3462,13 @@ sub _dosglob {
     #
     # and File::HomeDir, File::HomeDir::Windows module
 
-    # DOS like system
+    # DOS-like system
     if ($^O =~ /\A (?: MSWin32 | NetWare | symbian | dos ) \z/oxms) {
         $expr =~ s{ \A ~ (?= [^/\\] ) }
                   { $ENV{'HOME'} || $ENV{'USERPROFILE'} || "$ENV{'HOMEDRIVE'}$ENV{'HOMEPATH'}" }oxmse;
     }
 
-    # UNIX like system
+    # UNIX-like system
     else {
         $expr =~ s{ \A ~ ( (?:[\x81-\xFE][\x00-\xFF]|[^/])* ) }
                   { $1 ? (getpwnam($1))[7] : ($ENV{'HOME'} || $ENV{'LOGDIR'} || (getpwuid($<))[7]) }oxmse;
@@ -3746,17 +3695,13 @@ sub Ebig5hkscs::lstat(*) {
 
     local $_ = shift if @_;
 
-    my $fh = qualify_to_ref $_;
-    if (fileno $fh) {
-        return CORE::lstat $fh;
-    }
-    elsif (-e $_) {
+    if (-e $_) {
         return CORE::lstat _;
     }
     elsif (_MSWin32_5Cended_path($_)) {
         my $fh = gensym();
         if (CORE::open $fh, $_) {
-            my @lstat = CORE::lstat $fh;
+            my @lstat = CORE::stat $fh; # not CORE::lstat
             close $fh;
             return @lstat;
         }
@@ -3769,17 +3714,13 @@ sub Ebig5hkscs::lstat(*) {
 #
 sub Ebig5hkscs::lstat_() {
 
-    my $fh = qualify_to_ref $_;
-    if (fileno $fh) {
-        return CORE::lstat $fh;
-    }
-    elsif (-e $_) {
+    if (-e $_) {
         return CORE::lstat _;
     }
     elsif (_MSWin32_5Cended_path($_)) {
         my $fh = gensym();
         if (CORE::open $fh, $_) {
-            my @lstat = CORE::lstat $fh;
+            my @lstat = CORE::stat $fh; # not CORE::lstat
             close $fh;
             return @lstat;
         }
@@ -3898,21 +3839,60 @@ sub Ebig5hkscs::unlink(@) {
 #
 sub Ebig5hkscs::chdir(;$) {
 
-    my($dir) = @_;
-
-    if (not defined $dir) {
-        $dir = ($ENV{'HOME'} || $ENV{'USERPROFILE'} || "$ENV{'HOMEDRIVE'}$ENV{'HOMEPATH'}");
+    if (@_ == 0) {
+        return CORE::chdir;
     }
+
+    my($dir) = @_;
 
     if (_MSWin32_5Cended_path($dir)) {
         if (not Ebig5hkscs::d $dir) {
             return 0;
         }
 
-        if ($] =~ /^5\.005/) {
+        if ($] =~ m/^5\.005/oxms) {
             return CORE::chdir $dir;
         }
-        else {
+        elsif ($] =~ m/^(?:5\.006|5\.008000)/oxms) {
+            if ($^O eq 'MSWin32') {
+                local $@;
+                my $chdir = eval q{
+                    require 'jacode.pl';
+
+                    # P.676 ${^WIDE_SYSTEM_CALLS}
+                    # in Chapter 28: Special Names
+                    # of ISBN 0-596-00027-8 Programming Perl Third Edition.
+
+                    local ${^WIDE_SYSTEM_CALLS} = 1;
+                    return CORE::chdir jcode::utf8($dir,'sjis');
+                };
+                if (not $@) {
+                    return $chdir;
+                }
+            }
+        }
+
+        local $@;
+        my $shortdir = '';
+        my $chdir = eval q{
+            use Win32;
+            $shortdir = Win32::GetShortPathName($dir);
+            if ($shortdir ne $dir) {
+                return CORE::chdir $shortdir;
+            }
+            else {
+                return 0;
+            }
+        };
+        if ($@) {
+            my @char = $dir =~ m/\G ($q_char) /oxmsg;
+            while ($char[-1] eq "\x5C") {
+                pop @char;
+            }
+            $dir = join '', @char;
+            croak "perl$] can't chdir to $dir (chr(0x5C) ended path), Win32.pm module may help you";
+        }
+        elsif ($shortdir eq $dir) {
             my @char = $dir =~ m/\G ($q_char) /oxmsg;
             while ($char[-1] eq "\x5C") {
                 pop @char;
@@ -3920,6 +3900,7 @@ sub Ebig5hkscs::chdir(;$) {
             $dir = join '', @char;
             croak "perl$] can't chdir to $dir (chr(0x5C) ended path)";
         }
+        return $chdir;
     }
     else {
         return CORE::chdir $dir;
@@ -4056,8 +4037,7 @@ ITER_DO:
                     }
                 }
 
-                eval { 'strict'->unimport };
-                local $^W = $_warning;
+                no strict;
                 local $@;
                 $result = eval $script;
 
@@ -4193,8 +4173,8 @@ ITER_REQUIRE:
                     }
                 }
 
-                eval { 'strict'->unimport };
-                local $^W = $_warning;
+                no strict;
+                local $@;
                 $result = eval $script;
 
                 last ITER_REQUIRE;
@@ -4223,6 +4203,7 @@ sub Ebig5hkscs::telldir(*) {
 #
 sub Ebig5hkscs::binmode(*;$) {
     if (@_ == 1) {
+        local $^W = 0;
         if (ref $_[0]) {
             my $filehandle = qualify_to_ref $_[0];
             return CORE::binmode $filehandle;
@@ -4235,6 +4216,7 @@ sub Ebig5hkscs::binmode(*;$) {
         my(undef,$layer) = @_;
         $layer =~ s/ :? encoding\($encoding_alias\) //oxms;
         if ($layer =~ m/\A :raw \z/oxms) {
+            local $^W = 0;
             if ($_[0] =~ m/\A (?: STDIN | STDOUT | STDERR ) \z/oxms) {
                 return CORE::binmode $_[0];
             }
@@ -4268,6 +4250,7 @@ sub Ebig5hkscs::open(*;$@) {
     }
     elsif (@_ == 1) {
         my $filehandle = gensym;
+        local $^W = 0;
         my $expr = ${(caller(1))[0] . "::$_[0]"};
         my $ref = \${(caller(1))[0] . "::$_[0]"};
         *{(caller(1))[0] . "::$_[0]"} = $filehandle;
@@ -4553,9 +4536,6 @@ sub confess(@) {
     croak @_;
 }
 
-# pop warning
-$^W = $_warning;
-
 1;
 
 __END__
@@ -4807,7 +4787,6 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   Ebig5hkscs::S(*), Ebig5hkscs::S_()   File is a socket
   Ebig5hkscs::b(*), Ebig5hkscs::b_()   File is a block special file
   Ebig5hkscs::c(*), Ebig5hkscs::c_()   File is a character special file
-  Ebig5hkscs::t(*), Ebig5hkscs::t_()   Filehandle is opened to a tty
   Ebig5hkscs::u(*), Ebig5hkscs::u_()   File has setuid bit set
   Ebig5hkscs::g(*), Ebig5hkscs::g_()   File has setgid bit set
   Ebig5hkscs::k(*), Ebig5hkscs::k_()   File has sticky bit set

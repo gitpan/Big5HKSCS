@@ -6,10 +6,10 @@ die "This file is not encoded in Big5-HKSCS.\n" if q{‚ } ne "\x82\xa0";
 my $__FILE__ = __FILE__;
 
 use Ebig5hkscs;
-print "1..52\n";
+print "1..48\n";
 
 if ($^O !~ /\A (?: MSWin32 | NetWare | symbian | dos ) \z/oxms) {
-    for my $tno (1..52) {
+    for my $tno (1..48) {
         print "ok - $tno # SKIP $^X $0\n";
     }
     exit;
@@ -258,131 +258,102 @@ else {
     print "not ok - 34 Ebig5hkscs::c FILE == -c FILE $^X $__FILE__\n";
 }
 
-local $^W = 0;
-if (((Ebig5hkscs::t 'file') ne '') == ((-t 'file') ne '')) {
-    print "ok - 35 Ebig5hkscs::t 'file' == -t 'file' $^X $__FILE__\n";
-}
-else {
-    print "not ok - 35 Ebig5hkscs::t 'file' == -t 'file' $^X $__FILE__\n";
-}
-
-if (((Ebig5hkscs::t FILE) ne '') == ((-t FILE) ne '')) {
-    print "ok - 36 Ebig5hkscs::t FILE == -t FILE $^X $__FILE__\n";
-}
-else {
-    print "not ok - 36 Ebig5hkscs::t FILE == -t FILE $^X $__FILE__\n";
-}
-
 if (((Ebig5hkscs::u 'file') ne '') == ((-u 'file') ne '')) {
-    print "ok - 37 Ebig5hkscs::u 'file' == -u 'file' $^X $__FILE__\n";
+    print "ok - 35 Ebig5hkscs::u 'file' == -u 'file' $^X $__FILE__\n";
 }
 else {
-    print "not ok - 37 Ebig5hkscs::u 'file' == -u 'file' $^X $__FILE__\n";
+    print "not ok - 35 Ebig5hkscs::u 'file' == -u 'file' $^X $__FILE__\n";
 }
 
 if (((Ebig5hkscs::u FILE) ne '') == ((-u FILE) ne '')) {
-    print "ok - 38 Ebig5hkscs::u FILE == -u FILE $^X $__FILE__\n";
+    print "ok - 36 Ebig5hkscs::u FILE == -u FILE $^X $__FILE__\n";
 }
 else {
-    print "not ok - 38 Ebig5hkscs::u FILE == -u FILE $^X $__FILE__\n";
+    print "not ok - 36 Ebig5hkscs::u FILE == -u FILE $^X $__FILE__\n";
 }
 
 if (((Ebig5hkscs::g 'file') ne '') == ((-g 'file') ne '')) {
-    print "ok - 39 Ebig5hkscs::g 'file' == -g 'file' $^X $__FILE__\n";
+    print "ok - 37 Ebig5hkscs::g 'file' == -g 'file' $^X $__FILE__\n";
 }
 else {
-    print "not ok - 39 Ebig5hkscs::g 'file' == -g 'file' $^X $__FILE__\n";
+    print "not ok - 37 Ebig5hkscs::g 'file' == -g 'file' $^X $__FILE__\n";
 }
 
 if (((Ebig5hkscs::g FILE) ne '') == ((-g FILE) ne '')) {
-    print "ok - 40 Ebig5hkscs::g FILE == -g FILE $^X $__FILE__\n";
+    print "ok - 38 Ebig5hkscs::g FILE == -g FILE $^X $__FILE__\n";
 }
 else {
-    print "not ok - 40 Ebig5hkscs::g FILE == -g FILE $^X $__FILE__\n";
-}
-
-if (((Ebig5hkscs::k 'file') ne '') == ((-k 'file') ne '')) {
-    print "ok - 41 Ebig5hkscs::k 'file' == -k 'file' $^X $__FILE__\n";
-}
-else {
-    print "not ok - 41 Ebig5hkscs::k 'file' == -k 'file' $^X $__FILE__\n";
-}
-
-if (((Ebig5hkscs::k FILE) ne '') == ((-k FILE) ne '')) {
-    print "ok - 42 Ebig5hkscs::k FILE == -k FILE $^X $__FILE__\n";
-}
-else {
-    print "not ok - 42 Ebig5hkscs::k FILE == -k FILE $^X $__FILE__\n";
+    print "not ok - 38 Ebig5hkscs::g FILE == -g FILE $^X $__FILE__\n";
 }
 
 if (((Ebig5hkscs::T 'file') ne '') == ((-T 'file') ne '')) {
-    print "ok - 43 Ebig5hkscs::T 'file' == -T 'file' $^X $__FILE__\n";
+    print "ok - 39 Ebig5hkscs::T 'file' == -T 'file' $^X $__FILE__\n";
 }
 else {
-    print "not ok - 43 Ebig5hkscs::T 'file' == -T 'file' $^X $__FILE__\n";
+    print "not ok - 39 Ebig5hkscs::T 'file' == -T 'file' $^X $__FILE__\n";
 }
 
 if (((Ebig5hkscs::T FILE) ne '') == ((-T FILE) ne '')) {
-    print "ok - 44 Ebig5hkscs::T FILE == -T FILE $^X $__FILE__\n";
+    print "ok - 40 Ebig5hkscs::T FILE == -T FILE $^X $__FILE__\n";
 }
 else {
-    print "not ok - 44 Ebig5hkscs::T FILE == -T FILE $^X $__FILE__\n";
+    print "not ok - 40 Ebig5hkscs::T FILE == -T FILE $^X $__FILE__\n";
 }
 
 if (((Ebig5hkscs::B 'file') ne '') == ((-B 'file') ne '')) {
-    print "ok - 45 Ebig5hkscs::B 'file' == -B 'file' $^X $__FILE__\n";
+    print "ok - 41 Ebig5hkscs::B 'file' == -B 'file' $^X $__FILE__\n";
 }
 else {
-    print "not ok - 45 Ebig5hkscs::B 'file' == -B 'file' $^X $__FILE__\n";
+    print "not ok - 41 Ebig5hkscs::B 'file' == -B 'file' $^X $__FILE__\n";
 }
 
 if (((Ebig5hkscs::B FILE) ne '') == ((-B FILE) ne '')) {
-    print "ok - 46 Ebig5hkscs::B FILE == -B FILE $^X $__FILE__\n";
+    print "ok - 42 Ebig5hkscs::B FILE == -B FILE $^X $__FILE__\n";
 }
 else {
-    print "not ok - 46 Ebig5hkscs::B FILE == -B FILE $^X $__FILE__\n";
+    print "not ok - 42 Ebig5hkscs::B FILE == -B FILE $^X $__FILE__\n";
 }
 
 if (((Ebig5hkscs::M 'file') ne '') == ((-M 'file') ne '')) {
-    print "ok - 47 Ebig5hkscs::M 'file' == -M 'file' $^X $__FILE__\n";
+    print "ok - 43 Ebig5hkscs::M 'file' == -M 'file' $^X $__FILE__\n";
 }
 else {
-    print "not ok - 47 Ebig5hkscs::M 'file' == -M 'file' $^X $__FILE__\n";
+    print "not ok - 43 Ebig5hkscs::M 'file' == -M 'file' $^X $__FILE__\n";
 }
 
 if (((Ebig5hkscs::M FILE) ne '') == ((-M FILE) ne '')) {
-    print "ok - 48 Ebig5hkscs::M FILE == -M FILE $^X $__FILE__\n";
+    print "ok - 44 Ebig5hkscs::M FILE == -M FILE $^X $__FILE__\n";
 }
 else {
-    print "not ok - 48 Ebig5hkscs::M FILE == -M FILE $^X $__FILE__\n";
+    print "not ok - 44 Ebig5hkscs::M FILE == -M FILE $^X $__FILE__\n";
 }
 
 if (((Ebig5hkscs::A 'file') ne '') == ((-A 'file') ne '')) {
-    print "ok - 49 Ebig5hkscs::A 'file' == -A 'file' $^X $__FILE__\n";
+    print "ok - 45 Ebig5hkscs::A 'file' == -A 'file' $^X $__FILE__\n";
 }
 else {
-    print "not ok - 49 Ebig5hkscs::A 'file' == -A 'file' $^X $__FILE__\n";
+    print "not ok - 45 Ebig5hkscs::A 'file' == -A 'file' $^X $__FILE__\n";
 }
 
 if (((Ebig5hkscs::A FILE) ne '') == ((-A FILE) ne '')) {
-    print "ok - 50 Ebig5hkscs::A FILE == -A FILE $^X $__FILE__\n";
+    print "ok - 46 Ebig5hkscs::A FILE == -A FILE $^X $__FILE__\n";
 }
 else {
-    print "not ok - 50 Ebig5hkscs::A FILE == -A FILE $^X $__FILE__\n";
+    print "not ok - 46 Ebig5hkscs::A FILE == -A FILE $^X $__FILE__\n";
 }
 
 if (((Ebig5hkscs::C 'file') ne '') == ((-C 'file') ne '')) {
-    print "ok - 51 Ebig5hkscs::C 'file' == -C 'file' $^X $__FILE__\n";
+    print "ok - 47 Ebig5hkscs::C 'file' == -C 'file' $^X $__FILE__\n";
 }
 else {
-    print "not ok - 51 Ebig5hkscs::C 'file' == -C 'file' $^X $__FILE__\n";
+    print "not ok - 47 Ebig5hkscs::C 'file' == -C 'file' $^X $__FILE__\n";
 }
 
 if (((Ebig5hkscs::C FILE) ne '') == ((-C FILE) ne '')) {
-    print "ok - 52 Ebig5hkscs::C FILE == -C FILE $^X $__FILE__\n";
+    print "ok - 48 Ebig5hkscs::C FILE == -C FILE $^X $__FILE__\n";
 }
 else {
-    print "not ok - 52 Ebig5hkscs::C FILE == -C FILE $^X $__FILE__\n";
+    print "not ok - 48 Ebig5hkscs::C FILE == -C FILE $^X $__FILE__\n";
 }
 
 close(FILE);
